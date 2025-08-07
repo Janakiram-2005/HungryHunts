@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ vendor.shop_name }} - Menu</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Poppins', sans-serif; margin: 0; background-color: #f8f9fa; }
+        .header { background-color: #343a40; color: white; padding: 3rem 1rem; text-align: center; position: relative; }
+        .header h1 { margin: 0; font-size: 2.5rem; }
+        .header p { margin: 0.5rem 0 0; color: #ced4da; }
+        .back-link { color: white; position: absolute; top: 20px; left: 20px; text-decoration: none; font-weight: 600; }
+        .cart-link { position: absolute; top: 20px; right: 20px; background-color: #ff6347; color: white; padding: 10px 20px; border-radius: 20px; text-decoration: none; font-weight: 600; }
+        .container { max-width: 1000px; margin: 2rem auto; padding: 0 1rem; }
+        .menu-category { margin-bottom: 3rem; }
+        .category-title { font-size: 2rem; font-weight: 700; color: #212529; margin-bottom: 1.5rem; border-bottom: 3px solid #ff6347; display: inline-block; }
+        .meal-type-title { font-size: 1.5rem; font-weight: 600; color: #495057; }
+        .menu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; }
+        .menu-item-card { background-color: white; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.07); padding: 1.5rem; display: flex; flex-direction: column; }
+        .menu-item-card h3 { margin: 0 0 0.5rem 0; }
+        .menu-item-card p { margin: 0 0 1rem 0; font-size: 0.9rem; color: #6c757d; flex-grow: 1; }
+        .price-add-row { display: flex; justify-content: space-between; align-items: center; margin-top: auto; }
+        .price-add-row .price { font-weight: 700; color: #28a745; font-size: 1.25rem; }
+        .add-cart-btn { background-color: #ff6347; color: white; border: none; border-radius: 50%; width: 40px; height: 40px; font-size: 1.5rem; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <a href="{{ url_for('vendors_list') }}" class="back-link">&larr; Back to Restaurants</a>
+        <h1>{{ vendor.shop_name }}</h1>
+        <p>{{ vendor.address }}</p>
+        
+        {% if session.get('role') == 'customer' and session.get('cart') %}
+        <a href="{{ url_for('view_cart') }}" class="cart-link">
+            🛒 View Cart ({{ session['cart']|length }})
+        </a>
+        {% endif %}
+    </div>
+
+    <main class="container">
+        <div class="menu-category">
+            <h2 class="category-title">🌿 Veg Menu</h2>
+            {% for meal, items in categorized_menu.veg.items() %}
+                <h3 class="meal-type-title">{{ meal }}</h3>
+                <div class="menu-grid">
+                    {% for dish in items %}
+                    <div class="menu-item-card">
+                        <h3>{{ dish.name }}</h3>
+                        <p>{{ dish.description }}</p>
+                        <div class="price-add-row">
+                            <span class="price">₹{{ "%.2f"|format(dish.price) }}</span>
+                            {% if session.get('role') == 'customer' %}
+                            <form action="{{ url_for('add_to_cart', dish_id=dish._id) }}" method="POST">
+                                <button type="submit" class="add-cart-btn">+</button>
+                            </form>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                 <p>No vegetarian dishes available at the moment.</p>
+            {% endfor %}
+        </div>
+
+        <div class="menu-category">
+            <h2 class="category-title">🍗 Non-Veg Menu</h2>
+            {% for meal, items in categorized_menu.non_veg.items() %}
+                <h3 class="meal-type-title">{{ meal }}</h3>
+                <div class="menu-grid">
+                    {% for dish in items %}
+                    <div class="menu-item-card">
+                        <h3>{{ dish.name }}</h3>
+                        <p>{{ dish.description }}</p>
+                        <div class="price-add-row">
+                            <span class="price">₹{{ "%.2f"|format(dish.price) }}</span>
+                            {% if session.get('role') == 'customer' %}
+                            <form action="{{ url_for('add_to_cart', dish_id=dish._id) }}" method="POST">
+                                <button type="submit" class="add-cart-btn">+</button>
+                            </form>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p>No non-vegetarian dishes available at the moment.</p>
+            {% endfor %}
+        </div>
+    </main>
+</body>
+</html>

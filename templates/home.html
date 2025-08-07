@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to HungryHuts</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; font-family: 'Poppins', sans-serif; }
+        .hero-container { height: 100vh; width: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; color: white; background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=80&w=2070&auto=format&fit=crop') no-repeat center center/cover; }
+        .hero-content h1 { font-size: 4rem; margin-bottom: 0.5rem; font-weight: 700; }
+        .hero-content p { font-size: 1.25rem; margin-bottom: 2rem; max-width: 600px; }
+        .cta-button { display: inline-block; padding: 1rem 2.5rem; background-color: #ff6347; color: white; text-decoration: none; font-size: 1.2rem; font-weight: bold; border-radius: 50px; transition: transform 0.3s ease, background-color 0.3s ease; }
+        .cta-button:hover { background-color: #e5533d; transform: scale(1.05); }
+        .footer-links { position: absolute; bottom: 20px; width: 100%; text-align: center; }
+        .footer-links a { color: white; text-decoration: none; font-weight: 600; margin: 0 20px; padding: 10px; border: 2px solid white; border-radius: 30px; transition: background-color 0.3s, color 0.3s; }
+        .footer-links a:hover { background-color: white; color: #ff6347; }
+    </style>
+</head>
+<body>
+    <div class="hero-container">
+        <div class="hero-content">
+            <h1>HungryHuts 🍔</h1>
+            <p>Your one-stop solution for discovering the best local food in Vadlamudi.</p>
+            <a href="{{ url_for('vendors_list') }}" class="cta-button">Find Restaurants Near Me</a>
+        </div>
+        <div class="footer-links">
+            <a href="{{ url_for('user_login_page') }}">Customer Login</a>
+            <a href="{{ url_for('vendor_login_page') }}">Restaurant Owner Login</a>
+        </div>
+    </div>
+</body>
+</html>

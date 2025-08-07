@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Manage Menu - {{ vendor.shop_name }}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Poppins', sans-serif; margin: 0; background-color: #f8f9fa; }
+        .header { background-color: #007bff; color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
+        .header h1 { margin: 0; font-size: 1.5rem; }
+        .header .links a { color: #dee2e6; text-decoration: none; margin-left: 20px; font-weight: 600; }
+        .container { max-width: 1000px; margin: 2rem auto; padding: 0 1rem; }
+        .card { background-color: white; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.07); margin-bottom: 2rem; padding: 1.5rem; }
+        .tabs { margin-bottom: 2rem; border-bottom: 1px solid #dee2e6; }
+        .tabs a { text-decoration: none; padding: 10px 20px; font-weight: 600; color: #6c757d; }
+        .tabs a.active { color: #007bff; border-bottom: 3px solid #007bff; }
+        h2 { font-size: 1.8rem; margin-top: 0; border-bottom: 2px solid #007bff; padding-bottom: 0.5rem; }
+        .add-dish-form { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .form-group { display: flex; flex-direction: column; }
+        label { margin-bottom: 5px; font-weight: 600; color: #495057; }
+        input, textarea, select, button { padding: 12px; border: 1px solid #ccc; border-radius: 5px; font-size: 1rem; font-family: 'Poppins', sans-serif; }
+        .full-width { grid-column: 1 / -1; }
+        .add-dish-form button { background-color: #007bff; color: white; border: none; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>{{ vendor.shop_name }} - Dashboard</h1>
+        <div class="links">
+            <a href="{{ url_for('edit_vendor') }}">Edit Profile</a>
+            <a href="{{ url_for('logout') }}">Logout</a>
+        </div>
+    </div>
+    <main class="container">
+        <div class="tabs">
+            <a href="{{ url_for('vendor_dashboard') }}">Customer Orders</a>
+            <a href="{{ url_for('manage_menu') }}" class="active">Manage Menu</a>
+        </div>
+        <div class="card">
+            <h2>Add a New Dish</h2>
+            <form class="add-dish-form" action="{{ url_for('add_dish', vendor_id=vendor._id) }}" method="POST">
+                <div class="form-group"><label for="dish_name">Dish Name</label><input type="text" id="dish_name" name="dish_name" required></div>
+                <div class="form-group"><label for="price">Price (₹)</label><input type="number" id="price" name="price" step="0.01" required></div>
+                <div class="form-group full-width"><label for="description">Description</label><textarea id="description" name="description" rows="3" required></textarea></div>
+                <div class="form-group full-width"><label for="category">Category</label><select id="category" name="category" required><optgroup label="Veg"><option value="Veg Tiffin">Veg Tiffin</option><option value="Veg Lunch">Veg Lunch</option><option value="Veg Dinner">Veg Dinner</option><option value="Veg Snacks">Veg Snacks</option></optgroup><optgroup label="Non-Veg"><option value="Non-Veg Tiffin">Non-Veg Tiffin</option><option value="Non-Veg Lunch">Non-Veg Lunch</option><option value="Non-Veg Dinner">Non-Veg Dinner</option><option value="Non-Veg Snacks">Non-Veg Snacks</option></optgroup></select></div>
+                <div class="form-group full-width"><button type="submit">Add Dish to Menu</button></div>
+            </form>
+        </div>
+        <div class="card">
+            <h2>Current Menu</h2>
+            </div>
+    </main>
+</body>
+</html>

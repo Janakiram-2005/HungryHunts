@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Vendor Details - {{ vendor.shop_name }}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Poppins', sans-serif; margin: 0; background-color: #f8f9fa; }
+        .sidebar { position: fixed; top: 0; left: 0; height: 100%; width: 250px; background-color: #343a40; color: white; }
+        .sidebar h2 a { color: white; text-decoration: none; display: block; text-align: center; padding: 20px 0; font-size: 1.5rem; }
+        .sidebar-nav { list-style-type: none; padding: 0; margin-top: 30px; }
+        .sidebar-nav li a { display: block; color: #adb5bd; text-decoration: none; padding: 15px 20px; }
+        .sidebar-nav li a:hover { background-color: #495057; color: white; }
+        .main-content { margin-left: 250px; padding: 2rem; }
+        .detail-card { background-color: white; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.07); padding: 2rem; max-width: 800px; margin: auto; }
+        h1 { margin-top: 0; }
+        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 1.5rem; }
+        .info-item strong { display: block; color: #6c757d; font-size: 0.9rem; margin-bottom: 5px; }
+        .info-item span { font-size: 1.1rem; }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <h2><a href="{{ url_for('admin_dashboard') }}">HungryHuts Admin</a></h2>
+        <ul class="sidebar-nav">
+            <li><a href="{{ url_for('admin_dashboard') }}">Dashboard</a></li>
+            <li><a href="{{ url_for('admin_feedback') }}">Feedback</a></li>
+            <li><a href="{{ url_for('admin_settings') }}">Settings</a></li>
+        </ul>
+    </div>
+    <div class="main-content">
+        <div class="detail-card">
+            <h1>{{ vendor.shop_name }}</h1>
+            <div class="info-grid">
+                <div class="info-item"><strong>Owner Name</strong><span>{{ vendor.owner_info[0].name if vendor.owner_info else 'N/A' }}</span></div>
+                <div class="info-item"><strong>Owner Email</strong><span>{{ vendor.owner_info[0].email if vendor.owner_info else 'N/A' }}</span></div>
+                <div class="info-item"><strong>Address</strong><span>{{ vendor.address }}</span></div>
+                <div class="info-item"><strong>Cuisines</strong><span>{{ ", ".join(vendor.cuisine_type) }}</span></div>
+                <div class="info-item"><strong>Commission Rate</strong><span>{{ vendor.commission_rate or 'Not Set' }}%</span></div>
+                <div class="info-item"><strong>Status</strong><span>{{ 'Active' if vendor.is_active else 'Disabled' }}</span></div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

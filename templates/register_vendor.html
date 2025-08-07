@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register Your Restaurant - HungryHuts</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background-color: #f4f7f6; display: flex; justify-content: center; align-items: center; margin: 0; padding: 3rem 0; }
+        .form-container { background-color: white; padding: 2.5rem 3rem; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); width: 100%; max-width: 600px; }
+        .form-header { text-align: center; margin-bottom: 2.5rem; }
+        .form-header h2 { color: #333; font-size: 2rem; margin: 0; }
+        .form-header p { color: #777; }
+        .form-section h4 { font-size: 1.2rem; color: #ff6347; margin-top: 2rem; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid #eee; }
+        .form-group { margin-bottom: 1.5rem; }
+        label { display: block; margin-bottom: 8px; color: #555; font-weight: 600; font-size: 0.9rem; }
+        input[type="text"], input[type="email"], input[type="password"], input[type="tel"], textarea { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; font-size: 1rem; transition: border-color 0.3s; }
+        input:focus, textarea:focus { border-color: #ff6347; outline: none; }
+        textarea { resize: vertical; }
+        button { width: 100%; padding: 15px; border: none; border-radius: 5px; background: linear-gradient(90deg, #ff6347, #ff7f50); color: white; font-size: 1.1rem; font-weight: bold; cursor: pointer; transition: transform 0.2s; }
+        button:hover { transform: scale(1.02); }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <div class="form-header">
+            <h2>Create Your Restaurant Profile</h2>
+            <p>Fill out the details below to get started.</p>
+        </div>
+        <form action="{{ url_for('register_vendor_page') }}" method="POST">
+            <div class="form-section">
+                <h4>Owner's Credentials</h4>
+                <div class="form-group">
+                    <label for="owner_name">Owner's Full Name</label>
+                    <input type="text" id="owner_name" name="owner_name" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">Login Email</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+            </div>
+            <div class="form-section">
+                <h4>Restaurant Information</h4>
+                <div class="form-group">
+                    <label for="shop_name">Restaurant Name</label>
+                    <input type="text" id="shop_name" name="shop_name" required>
+                </div>
+                <div class="form-group">
+                    <label for="shop_description">Shop Description</label>
+                    <textarea id="shop_description" name="shop_description" rows="4" placeholder="Describe your restaurant's specialty and atmosphere" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="address">Full Address</label>
+                    <textarea id="address" name="address" rows="2" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="cuisine_type">Cuisines (comma-separated)</label>
+                    <input type="text" id="cuisine_type" name="cuisine_type" placeholder="e.g., South Indian, Chinese, Biryani" required>
+                </div>
+            </div>
+            <button type="submit">Register My Restaurant</button>
+        </form>
+    </div>
+</body>
+</html>

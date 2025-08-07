@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Login - HungryHuts</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background-color: #f4f7f6; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .login-container { background: white; padding: 40px; border-radius: 10px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 400px; text-align: center; }
+        h2 { color: #333; margin-bottom: 10px; }
+        p { color: #777; margin-bottom: 30px; }
+        .form-group { margin-bottom: 20px; text-align: left; }
+        label { display: block; margin-bottom: 5px; color: #555; font-weight: 600; }
+        input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
+        button { width: 100%; padding: 15px; border: none; border-radius: 5px; background-color: #ff6347; color: white; font-size: 16px; font-weight: bold; cursor: pointer; }
+        .links { margin-top: 20px; font-size: 14px; }
+        .links a { color: #ff6347; text-decoration: none; font-weight: 600; }
+        .alert { padding: 15px; margin-bottom: 20px; border-radius: 5px; color: white; text-align: left; }
+        .alert-success { background-color: #28a745; }
+        .alert-error { background-color: #dc3545; }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <h2>Customer Login</h2>
+        <p>Welcome back! Find your next favorite meal.</p>
+        
+        <form action="{{ url_for('user_login_page') }}" method="POST">
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <button type="submit">Login</button>
+        </form>
+
+        <div class="links">
+            <p>New user? <a href="{{ url_for('customer_register_page') }}">Create an account</a></p>
+        </div>
+    </div>
+</body>
+</html>
