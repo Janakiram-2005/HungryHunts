@@ -2,14 +2,74 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Submit Feedback</title>
-    </head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Feedback - HungryHuts</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Poppins', sans-serif; margin: 0; background-color: #f8f9fa; }
+        .header { background-color: #343a40; color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
+        .header h1 a { color: white; text-decoration: none; font-size: 1.5rem; }
+        .header .links a { color: #dee2e6; text-decoration: none; margin-left: 20px; font-weight: 600; }
+        .container { max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
+        .card { background-color: white; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.07); padding: 2rem; margin-bottom: 2rem; }
+        h2, h3 { color: #343a40; border-bottom: 2px solid #ff6347; padding-bottom: 0.5rem; }
+        textarea { width: 100%; min-height: 100px; padding: 12px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; font-size: 1rem; font-family: 'Poppins', sans-serif; margin-top: 1rem; resize: vertical; }
+        button { width: 100%; padding: 15px; border: none; border-radius: 5px; background-color: #ff6347; color: white; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-top: 1rem; }
+        .message-thread { border: 1px solid #e9ecef; border-radius: 8px; margin-top: 1rem; }
+        .message { padding: 1rem; border-bottom: 1px solid #e9ecef; }
+        .message:last-child { border-bottom: none; }
+        .message.user { background-color: #e9f5ff; }
+        .message.admin { background-color: #f8f9fa; }
+        .message p { margin: 0; }
+        .message .meta { font-size: 0.8rem; color: #6c757d; margin-top: 5px; }
+        .reply-form { padding: 1rem; background-color: #f1f3f5; }
+    </style>
+</head>
 <body>
-    <h1>Give Us Your Feedback</h1>
-    <form action="{{ url_for('submit_feedback') }}" method="POST">
-        <textarea name="message" rows="5" placeholder="Your suggestions, feedback, or issues..." required></textarea>
-        <button type="submit">Submit Feedback</button>
-    </form>
-    <a href="javascript:history.back()">Go Back</a>
+    <div class="header">
+        <h1><a href="{{ url_for('vendors_list') }}">HungryHuts 🍔</a></h1>
+        <div class="links">
+            <a href="{{ url_for('profile_dashboard') }}">My Profile</a>
+            <a href="{{ url_for('logout') }}">Logout</a>
+        </div>
+    </div>
+
+    <main class="container">
+        <div class="card">
+            <h2>Your Conversations</h2>
+            {% for thread in past_feedback %}
+                <div class="message-thread">
+                    {% for message in thread.messages %}
+                        <div class="message {{ message.author }}">
+                            <p>{{ message.text }}</p>
+                            <div class="meta">
+                                <strong>{{ message.author|capitalize }}</strong> - 
+                                {% if message.get('timestamp') %}
+                                    <span>{{ message.timestamp.strftime('%Y-%m-%d %H:%M') }}</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                    <div class="reply-form">
+                        <form action="{{ url_for('user_reply_feedback', feedback_id=thread._id) }}" method="POST">
+                            <textarea name="reply_message" placeholder="Type your reply here..." required></textarea>
+                            <button type="submit">Send Reply</button>
+                        </form>
+                    </div>
+                </div>
+            {% else %}
+                <p>You have no past feedback conversations.</p>
+            {% endfor %}
+        </div>
+
+        <div class="card">
+            <h2>Start a New Conversation</h2>
+            <p>We value your suggestions. Let us know how we can improve!</p>
+            <form action="{{ url_for('submit_feedback') }}" method="POST">
+                <textarea name="message" placeholder="Your suggestions, feedback, or any issues you faced..." required></textarea>
+                <button type="submit">Submit New Feedback</button>
+            </form>
+        </div>
+    </main>
 </body>
 </html>

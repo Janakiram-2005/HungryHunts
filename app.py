@@ -26,8 +26,12 @@ try:
 except Exception as e:
     print(f"❌ Error connecting to MongoDB: {e}")
 
-# --- DECORATORS ---
+# =============================================================================
+# --- DECORATORS for User Roles ---
+# =============================================================================
+
 def login_required(f):
+    """Decorator to ensure a user is logged in."""
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if 'user_id' not in session:
@@ -37,14 +41,16 @@ def login_required(f):
     return decorated_function
 
 def vendor_required(f):
+    """Decorator to ensure a logged-in user is a vendor."""
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if session.get('role') != 'vendor':
             return redirect(url_for('home'))
         return f(*args, **kwargs)
     return decorated_function
-
+    
 def admin_required(f):
+    """Decorator to ensure a logged-in user is an admin."""
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if session.get('role') != 'admin':
@@ -52,20 +58,27 @@ def admin_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
+# =============================================================================
 # --- MAIN PUBLIC ROUTES ---
+# =============================================================================
+
 @app.route('/')
 def home():
+    """Renders the main landing page."""
     return render_template('home.html')
 
 @app.route('/vendors')
 def vendors_list():
+    """Renders the page with a list of all vendors."""
     all_vendors = list(vendors_collection.find())
     return render_template('index.html', vendors=all_vendors)
 
 @app.route('/vendor/<vendor_id>')
 def vendor_page(vendor_id):
+    """Renders the categorized menu page for a specific vendor."""
     vendor = vendors_collection.find_one({'_id': ObjectId(vendor_id)})
     all_dishes = list(dishes_collection.find({'vendor_id': ObjectId(vendor_id)}))
+    
     categorized_menu = {"veg": {}, "non_veg": {}}
     for dish in all_dishes:
         category = dish.get("category", "Uncategorized")
@@ -79,9 +92,13 @@ def vendor_page(vendor_id):
             categorized_menu["veg"][meal_type].append(dish)
     return render_template('vendor_details.html', vendor=vendor, categorized_menu=categorized_menu)
 
+# =============================================================================
 # --- REGISTRATION & LOGIN ROUTES ---
+# =============================================================================
+
 @app.route('/register/customer', methods=['GET', 'POST'])
 def customer_register_page():
+    """Handles new customer registration."""
     if request.method == 'POST':
         name = request.form.get('name')
         email = request.form.get('email')
@@ -97,6 +114,7 @@ def customer_register_page():
 
 @app.route('/register/vendor', methods=['GET', 'POST'])
 def register_vendor_page():
+    """Handles new vendor and restaurant registration."""
     if request.method == 'POST':
         owner_name = request.form.get('owner_name')
         email = request.form.get('email')
@@ -117,9 +135,11 @@ def register_vendor_page():
 
 @app.route('/login', methods=['GET', 'POST'])
 def user_login_page():
+    """Handles login for customers."""
     if request.method == 'POST':
         email = request.form.get('email')
         password = request.form.get('password')
+        # MODIFIED: Fixed security issue by checking for 'role'
         user = users_collection.find_one({'email': email, 'role': 'customer'})
         if user and check_password_hash(user.get('password_hash', ''), password):
             session['user_id'] = str(user['_id'])
@@ -132,6 +152,7 @@ def user_login_page():
 
 @app.route('/vendor/login', methods=['GET', 'POST'])
 def vendor_login_page():
+    """Handles login for vendors."""
     if request.method == 'POST':
         email = request.form.get('email')
         password = request.form.get('password')
@@ -147,14 +168,19 @@ def vendor_login_page():
 
 @app.route('/logout')
 def logout():
+    """Clears the session to log the user out."""
     session.clear()
     flash('You have been logged out.', 'success')
     return redirect(url_for('home'))
 
+# =============================================================================
 # --- CART AND CHECKOUT ROUTES ---
+# =============================================================================
+
 @app.route('/cart/add/<dish_id>', methods=['POST'])
 @login_required
 def add_to_cart(dish_id):
+    """Adds a dish to the user's session cart."""
     dish = dishes_collection.find_one({'_id': ObjectId(dish_id)})
     if 'cart' not in session: session['cart'] = {}
     cart = session['cart']
@@ -170,6 +196,7 @@ def add_to_cart(dish_id):
 @app.route('/cart/delete/<dish_id>', methods=['POST'])
 @login_required
 def delete_from_cart(dish_id):
+    """Deletes an item from the user's session cart."""
     cart = session.get('cart', {})
     if dish_id in cart:
         cart.pop(dish_id)
@@ -180,6 +207,7 @@ def delete_from_cart(dish_id):
 @app.route('/cart')
 @login_required
 def view_cart():
+    """Displays the contents of the shopping cart."""
     cart = session.get('cart', {})
     cart_items, grand_total = [], 0
     for item_id, item in cart.items():
@@ -191,6 +219,7 @@ def view_cart():
 @app.route('/checkout', methods=['POST'])
 @login_required
 def checkout():
+    """Processes the cart and creates an order in the database."""
     cart = session.get('cart', {})
     if not cart: return redirect(url_for('vendors_list'))
     
@@ -203,113 +232,133 @@ def checkout():
     grand_total = sum(item['price'] * item['quantity'] for item in order_items)
     vendor_id = next(iter(cart.values()))['vendor_id']
 
-    result = orders_collection.insert_one({
-        'user_id': ObjectId(session['user_id']), 'vendor_id': ObjectId(vendor_id),
-        'items': order_items, 'grand_total': grand_total, 'booking_time': scheduled_time,
-        'payment_method': payment_method, 'delivery_address': address, 'status': 'Pending',
-        'ordered_at': datetime.datetime.utcnow()
-    })
+    result = orders_collection.insert_one({'user_id': ObjectId(session['user_id']), 'vendor_id': ObjectId(vendor_id), 'items': order_items, 'grand_total': grand_total, 'booking_time': scheduled_time, 'payment_method': payment_method, 'delivery_address': address, 'status': 'Pending', 'ordered_at': datetime.datetime.utcnow()})
     
     session.pop('cart', None)
     return redirect(url_for('order_confirmation', order_id=result.inserted_id))
 
-
-
-@app.route('/order_confirmation')
+@app.route('/order_confirmation/<order_id>')
 @login_required
-def order_confirmation():
-    # This function now simply shows the confirmation page
-    return render_template('order_confirmation.html')
+def order_confirmation(order_id):
+    """Displays the order confirmation and receipt page."""
+    # MODIFIED: Fixed bug by ensuring this route accepts an order_id
+    order = orders_collection.find_one({'_id': ObjectId(order_id)})
+    return render_template('order_confirmation.html', order=order)
 
-
-
+# =============================================================================
 # --- DASHBOARD, PROFILE & VENDOR MANAGEMENT ---
+# =============================================================================
 @app.route('/profile')
 @login_required
 def profile_dashboard():
+    """Displays the logged-in user's profile."""
     user = users_collection.find_one({'_id': ObjectId(session['user_id'])})
     return render_template('profile_dashboard.html', user=user)
 
 @app.route('/vendor/dashboard')
 @vendor_required
 def vendor_dashboard():
+    """Displays the vendor dashboard with their dishes and orders."""
     vendor = vendors_collection.find_one({'owner_id': ObjectId(session['user_id'])})
-    if not vendor: return "<h1>Vendor profile not found.</h1>", 404
-    
+    if not vendor: 
+        flash("Vendor profile not found.", "error")
+        return redirect(url_for('home'))
+
+    dishes = list(dishes_collection.find({'vendor_id': vendor['_id']}))
     pipeline = [
-        {"$match": {"vendor_id": vendor['_id']}},
-        {"$lookup": {"from": "users", "localField": "user_id", "foreignField": "_id", "as": "customer_info"}},
+        {"$match": {"vendor_id": vendor['_id']}}, 
+        {"$lookup": {"from": "users", "localField": "user_id", "foreignField": "_id", "as": "customer_info"}}, 
         {"$sort": {"ordered_at": -1}}
     ]
     orders = list(orders_collection.aggregate(pipeline))
-    
-    return render_template('vendor_dashboard.html', vendor=vendor, orders=orders)
+    return render_template('vendor_dashboard.html', vendor=vendor, dishes=dishes, orders=orders)
 
-@app.route('/vendor/menu')
+# ✅ IMPROVED: Route no longer needs vendor_id in the URL, making it cleaner and more secure.
+@app.route('/vendor/dish/add', methods=['POST'])
 @vendor_required
-def manage_menu():
+def add_dish():
+    """Handles the form for a vendor to add a new dish."""
+    # We get the vendor's info securely from the session instead of the URL.
     vendor = vendors_collection.find_one({'owner_id': ObjectId(session['user_id'])})
-    if not vendor: return "<h1>Vendor profile not found.</h1>", 404
-    
-    dishes = list(dishes_collection.find({'vendor_id': vendor['_id']}))
-    return render_template('manage_menu.html', vendor=vendor, dishes=dishes)
+    if not vendor:
+        flash("Could not find your vendor profile.", "error")
+        return redirect(url_for('home'))
 
-@app.route('/vendor/order/update_status/<order_id>', methods=['POST'])
-@vendor_required
-def update_order_status(order_id):
-    vendor = vendors_collection.find_one({'owner_id': ObjectId(session['user_id'])})
-    new_status = request.form.get('status')
-    
-    # Security check: ensure the order belongs to this vendor
-    order = orders_collection.find_one({'_id': ObjectId(order_id), 'vendor_id': vendor['_id']})
-    if order and new_status:
-        orders_collection.update_one({'_id': order['_id']}, {'$set': {'status': new_status}})
-        flash('Order status updated!', 'success')
-
-    return redirect(url_for('vendor_dashboard'))
-
-@app.route('/vendor/<vendor_id>/add_dish', methods=['POST'])
-@vendor_required
-def add_dish(vendor_id):
-    # This logic now redirects back to the new menu page
     try:
         dish_name = request.form.get('dish_name')
         description = request.form.get('description')
         price = float(request.form.get('price'))
         category = request.form.get('category')
-        dishes_collection.insert_one({"vendor_id": ObjectId(vendor_id), "name": dish_name, "description": description, "price": price, "category": category})
+        
+        dishes_collection.insert_one({
+            "vendor_id": vendor['_id'], 
+            "name": dish_name, 
+            "description": description, 
+            "price": price, 
+            "category": category
+        })
         flash(f"'{dish_name}' added to your menu.", "success")
     except (ValueError, TypeError):
         flash("Invalid price entered. Please enter a number.", "error")
-    return redirect(url_for('manage_menu'))
+    
+    # ✅ CORRECTED: This line is now correctly indented inside the function.
+    return redirect(url_for('vendor_dashboard'))
 
 @app.route('/feedback', methods=['GET', 'POST'])
 @login_required
 def submit_feedback():
+    """Handles feedback submission and displays feedback history."""
     if request.method == 'POST':
-        message = request.form.get('message')
-        feedback_collection.insert_one({'user_id': ObjectId(session['user_id']), 'message': message, 'submitted_at': datetime.datetime.utcnow()})
+        message_text = request.form.get('message')
+        feedback_collection.insert_one({'user_id': ObjectId(session['user_id']), 'messages': [{'author': 'user', 'text': message_text, 'timestamp': datetime.datetime.now()}], 'created_at': datetime.datetime.now()})
         flash('Thank you for your feedback!', 'success')
-        return redirect(url_for('vendor_dashboard' if session.get('role') == 'vendor' else 'profile_dashboard'))
-    return render_template('feedback.html')
+        return redirect(url_for('submit_feedback'))
+    past_feedback = list(feedback_collection.find({'user_id': ObjectId(session['user_id'])}).sort('created_at', -1))
+    return render_template('feedback.html', past_feedback=past_feedback)
+
+@app.route('/feedback/reply/<feedback_id>', methods=['POST'])
+@login_required
+def user_reply_feedback(feedback_id):
+    """Handles a user replying to an existing feedback thread."""
+    reply_text = request.form.get('reply_message')
+    feedback_collection.update_one({'_id': ObjectId(feedback_id), 'user_id': ObjectId(session['user_id'])}, {'$push': {'messages': {'author': 'user', 'text': reply_text, 'timestamp': datetime.datetime.now()}}})
+    return redirect(url_for('submit_feedback'))
+
+@app.route('/feedback/delete/<feedback_id>', methods=['POST'])
+@login_required
+def user_delete_feedback(feedback_id):
+    """Allows a user to delete their own feedback thread."""
+    feedback_collection.delete_one({'_id': ObjectId(feedback_id), 'user_id': ObjectId(session['user_id'])})
+    flash('Feedback thread deleted.', 'success')
+    return redirect(url_for('submit_feedback'))
 
 @app.route('/vendor/edit')
 @vendor_required
-def edit_vendor():
+def edit_vendor_page(): # <-- The name has been corrected
+    """Renders the page for a vendor to edit their profile."""
     vendor = vendors_collection.find_one({'owner_id': ObjectId(session['user_id'])})
     return render_template('edit_vendor_dashboard.html', vendor=vendor)
 
 @app.route('/vendor/update', methods=['POST'])
 @vendor_required
 def update_vendor():
+    """Handles updating the vendor's profile information."""
     vendor = vendors_collection.find_one({'owner_id': ObjectId(session['user_id'])})
-    vendors_collection.update_one({'_id': vendor['_id']}, {'$set': {'shop_name': request.form.get('shop_name'), 'description': request.form.get('shop_description')}})
-    flash('Your profile has been updated!', 'success')
+    if vendor:
+        vendors_collection.update_one(
+            {'_id': vendor['_id']}, 
+            {'$set': {
+                'shop_name': request.form.get('shop_name'), 
+                'description': request.form.get('shop_description')
+            }}
+        )
+        flash('Your profile has been updated!', 'success')
     return redirect(url_for('vendor_dashboard'))
 
 @app.route('/vendor/delete', methods=['POST'])
 @vendor_required
 def delete_vendor():
+    """Deletes a vendor account and all associated data."""
     owner_id = ObjectId(session['user_id'])
     vendor = vendors_collection.find_one({'owner_id': owner_id})
     if vendor:
@@ -319,6 +368,46 @@ def delete_vendor():
         session.clear()
         flash('Your account and restaurant have been permanently deleted.', 'success')
     return redirect(url_for('home'))
+
+# ADD THIS TO APP.PY
+
+@app.route('/vendor/menu')
+@vendor_required
+def manage_menu():
+    """Renders the page for a vendor to manage their menu."""
+    vendor = vendors_collection.find_one({'owner_id': ObjectId(session['user_id'])})
+    if not vendor:
+        flash("Vendor profile not found.", "error")
+        return redirect(url_for('home'))
+    
+    dishes = list(dishes_collection.find({'vendor_id': vendor['_id']}))
+    return render_template('manage_menu.html', dishes=dishes, vendor=vendor)
+
+@app.route('/vendor/order/update/<order_id>', methods=['POST'])
+@vendor_required
+def update_order_status(order_id):
+    """Handles a vendor updating the status of an order."""
+    new_status = request.form.get('status')
+    
+    # Ensure the vendor can only update their own orders
+    vendor = vendors_collection.find_one({'owner_id': ObjectId(session['user_id'])})
+    orders_collection.update_one(
+        {'_id': ObjectId(order_id), 'vendor_id': vendor['_id']},
+        {'$set': {'status': new_status}}
+    )
+    flash(f"Order status updated to {new_status}.", "success")
+    return redirect(url_for('vendor_dashboard'))
+
+@app.route('/vendor/dish/delete/<dish_id>', methods=['POST'])
+@vendor_required
+def delete_dish(dish_id):
+    """Handles a vendor deleting a dish from their menu."""
+    vendor = vendors_collection.find_one({'owner_id': ObjectId(session['user_id'])})
+    
+    # Ensure vendors can only delete their own dishes
+    dishes_collection.delete_one({'_id': ObjectId(dish_id), 'vendor_id': vendor['_id']})
+    flash("Dish has been removed from your menu.", "success")
+    return redirect(url_for('manage_menu'))
 
 @app.route('/order/cancel/<order_id>', methods=['POST'])
 @login_required
@@ -334,6 +423,18 @@ def cancel_order(order_id):
         flash('You do not have permission to cancel this order.', 'error')
     return redirect(url_for('my_orders'))
 
+@app.route('/order/delete/<order_id>', methods=['POST'])
+@login_required
+def delete_order(order_id):
+    order = orders_collection.find_one({'_id': ObjectId(order_id)})
+    if order and order['user_id'] == ObjectId(session['user_id']):
+        if order['status'] != 'Pending':
+            orders_collection.delete_one({'_id': ObjectId(order_id)})
+            flash('Order removed from your history.', 'success')
+        else:
+            flash('Cannot delete a pending order. Please cancel it first.', 'error')
+    return redirect(url_for('my_orders'))
+
 @app.route('/my_orders')
 @login_required
 def my_orders():
@@ -347,7 +448,10 @@ def my_orders():
 def track_order(order_id):
     return render_template('track_order.html')
 
+# =============================================================================
 # --- ADMIN ROUTES ---
+# =============================================================================
+
 @app.route('/admin/login', methods=['GET', 'POST'])
 def admin_login_page():
     if request.method == 'POST':
@@ -391,9 +495,42 @@ def admin_edit_vendor(vendor_id):
 @app.route('/admin/feedback')
 @admin_required
 def admin_feedback():
-    pipeline = [{"$lookup": {"from": "users", "localField": "user_id", "foreignField": "_id", "as": "user_info"}}]
+    """Displays all feedback threads for the admin."""
+    # This pipeline joins the feedback with user info and sorts by newest first
+    pipeline = [
+        {"$sort": {"created_at": -1}},
+        {"$lookup": {"from": "users", "localField": "user_id", "foreignField": "_id", "as": "user_info"}}
+    ]
     all_feedback = list(feedback_collection.aggregate(pipeline))
     return render_template('admin_feedback.html', feedbacks=all_feedback)
+
+@app.route('/admin/feedback/reply/<feedback_id>', methods=['POST'])
+@admin_required
+def admin_reply_feedback(feedback_id):
+    """Handles an admin replying to a feedback thread."""
+    reply_message = request.form.get('reply_message')
+    if not reply_message:
+        flash('Reply message cannot be empty.', 'error')
+        return redirect(url_for('admin_feedback'))
+        
+    # Push the new message into the 'messages' array of the document
+    feedback_collection.update_one(
+        {'_id': ObjectId(feedback_id)},
+        {'$push': {'messages': {'author': 'admin', 'text': reply_message, 'timestamp': datetime.datetime.now()}}}
+    )
+    flash('Reply sent successfully!', 'success')
+    return redirect(url_for('admin_feedback'))
+
+@app.route('/admin/feedback/delete/<feedback_id>', methods=['POST'])
+@admin_required
+def admin_delete_feedback(feedback_id):
+    """Allows an admin to delete any feedback thread."""
+    result = feedback_collection.delete_one({'_id': ObjectId(feedback_id)})
+    if result.deleted_count > 0:
+        flash('Feedback thread deleted successfully.', 'success')
+    else:
+        flash('Could not find the feedback to delete.', 'error')
+    return redirect(url_for('admin_feedback'))
 
 @app.route('/admin/settings', methods=['POST', 'GET'])
 @admin_required
@@ -408,23 +545,8 @@ def admin_settings():
             flash('Password must be at least 8 characters long.', 'error')
     return render_template('admin_settings.html')
 
-@app.route('/order/delete/<order_id>', methods=['POST'])
-@login_required
-def delete_order(order_id):
-    order = orders_collection.find_one({'_id': ObjectId(order_id)})
-    
-    # Security check: Ensure the logged-in user owns this order
-    if order and order['user_id'] == ObjectId(session['user_id']):
-        # Only allow deletion if the order is not pending
-        if order['status'] != 'Pending':
-            orders_collection.delete_one({'_id': ObjectId(order_id)})
-            flash('Order has been removed from your history.', 'success')
-        else:
-            flash('You cannot delete a pending order. Please cancel it instead.', 'error')
-    else:
-        flash('You do not have permission to delete this order.', 'error')
 
-    return redirect(url_for('my_orders'))
+
 
 # --- RUN THE APP ---
 if __name__ == '__main__':
