@@ -5,19 +5,102 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Customer Login - HungryHuts</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background-color: #f4f7f6; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .login-container { background: white; padding: 40px; border-radius: 10px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 400px; text-align: center; }
+        body { 
+            font-family: 'Segoe UI', sans-serif; 
+            background-color: #f4f7f6; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            margin: 0; 
+        }
+        
+        .login-container { 
+            background: white; 
+            padding: 40px; 
+            border-radius: 10px; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1); 
+            width: 100%; 
+            max-width: 400px; 
+            text-align: center; 
+            /* ADDED: Makes padding calculation stable */
+            box-sizing: border-box;
+        }
+        
         h2 { color: #333; margin-bottom: 10px; }
         p { color: #777; margin-bottom: 30px; }
-        .form-group { margin-bottom: 20px; text-align: left; }
-        label { display: block; margin-bottom: 5px; color: #555; font-weight: 600; }
-        input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
-        button { width: 100%; padding: 15px; border: none; border-radius: 5px; background-color: #ff6347; color: white; font-size: 16px; font-weight: bold; cursor: pointer; }
+        
+        .form-group { 
+            margin-bottom: 20px; 
+            text-align: left; 
+        }
+        
+        label { 
+            display: block; 
+            margin-bottom: 5px; 
+            color: #555; 
+            font-weight: 600; 
+        }
+        
+        input { 
+            width: 100%; 
+            padding: 12px; 
+            border: 1px solid #ddd; 
+            border-radius: 5px; 
+            box-sizing: border-box; 
+        }
+        
+        button { 
+            width: 100%; 
+            padding: 15px; 
+            border: none; 
+            border-radius: 5px; 
+            background-color: #ff6347; 
+            color: white; 
+            font-size: 16px; 
+            font-weight: bold; 
+            cursor: pointer; 
+        }
+        
         .links { margin-top: 20px; font-size: 14px; }
         .links a { color: #ff6347; text-decoration: none; font-weight: 600; }
-        .alert { padding: 15px; margin-bottom: 20px; border-radius: 5px; color: white; text-align: left; }
+        
+        .alert { 
+            padding: 15px; 
+            margin-bottom: 20px; 
+            border-radius: 5px; 
+            color: white; 
+            text-align: left; 
+        }
+        
         .alert-success { background-color: #28a745; }
         .alert-error { background-color: #dc3545; }
+
+        /* --- START: Mobile Responsive Styles --- */
+        
+        @media (max-width: 480px) {
+            body {
+                /* Remove alignment, container will fill screen */
+                align-items: flex-start;
+            }
+
+            .login-container {
+                /* Make it fill the whole mobile screen */
+                height: 100vh;
+                width: 100%;
+                border-radius: 0;
+                box-shadow: none;
+                /* Reduce side padding */
+                padding: 40px 25px;
+                /* Center the content vertically within the full-screen container */
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+            }
+        }
+
+        /* --- END: Mobile Responsive Styles --- */
+
     </style>
 </head>
 <body>

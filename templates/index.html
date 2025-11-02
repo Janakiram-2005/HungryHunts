@@ -27,6 +27,7 @@
         .header-title h1 { 
             margin: 0; 
             font-weight: 700; 
+            font-size: 1.8rem; /* Slightly reduced for better balance */
         }
         .header-links {
             display: flex;
@@ -49,7 +50,8 @@
         }
         .vendor-grid { 
             display: grid; 
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); 
+            /* MODIFIED: Changed 320px to 280px to better fit small mobile screens */
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
             gap: 2rem; 
         }
         .vendor-card { 
@@ -110,6 +112,44 @@
             font-weight: 600;
             display: inline-block;
         }
+
+        /* --- START: Mobile Responsive Styles --- */
+
+        @media (max-width: 768px) {
+            .header {
+                /* Stack title and links vertically */
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px; /* Add space between title and links */
+                padding: 1rem;
+            }
+
+            .header-title h1 {
+                font-size: 1.5rem; /* Reduce title size */
+            }
+
+            .header-links {
+                /* Make links take full width and align to the end */
+                width: 100%;
+                justify-content: flex-end;
+            }
+
+            .header-links a {
+                margin-left: 15px; /* Reduce space between links */
+            }
+
+            .container {
+                /* Reduce side padding and top margin */
+                padding: 0 1rem;
+                margin: 1.5rem auto;
+            }
+
+            .vendor-card-header h3 {
+                font-size: 1.4rem; /* Reduce card title size */
+            }
+        }
+        /* --- END: Mobile Responsive Styles --- */
+
     </style>
 </head>
 <body>

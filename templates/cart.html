@@ -1,119 +1,119 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Your Cart - HungryHuts</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-    <style>
-        body { font-family: 'Poppins', sans-serif; margin: 0; background-color: #f8f9fa; color: #343a40; }
-        .header { background-color: #343a40; color: white; padding: 1.5rem 2rem; text-align: center; }
-        .header h1 { margin: 0; }
-        .container { max-width: 900px; margin: 2rem auto; padding: 0 1rem; }
-        .cart-container, .checkout-container { background-color: white; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.07); padding: 2rem; margin-bottom: 2rem; }
-        h2 { margin-top: 0; border-bottom: 2px solid #ff6347; padding-bottom: 0.5rem; display: inline-block; }
-        table { width: 100%; border-collapse: collapse; margin-top: 1.5rem; }
-        th, td { text-align: left; padding: 12px; border-bottom: 1px solid #dee2e6; vertical-align: middle; }
-        .total-row { font-weight: 700; font-size: 1.2rem; }
-        .remove-btn { background-color: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; }
-        .place-order-btn { display: block; width: 100%; padding: 15px; border: none; border-radius: 5px; background-color: #28a745; color: white; font-size: 1.1rem; font-weight: bold; cursor: pointer; }
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Your Cart - HungryHuts</title>
+        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+        <style>
+            body { font-family: 'Poppins', sans-serif; margin: 0; background-color: #f8f9fa; color: #343a40; }
+            .header { background-color: #343a40; color: white; padding: 1.5rem 2rem; text-align: center; }
+            .header h1 { margin: 0; }
+            .container { max-width: 900px; margin: 2rem auto; padding: 0 1rem; }
+            .cart-container, .checkout-container { background-color: white; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.07); padding: 2rem; margin-bottom: 2rem; }
+            h2 { margin-top: 0; border-bottom: 2px solid #ff6347; padding-bottom: 0.5rem; display: inline-block; }
+            table { width: 100%; border-collapse: collapse; margin-top: 1.5rem; }
+            th, td { text-align: left; padding: 12px; border-bottom: 1px solid #dee2e6; vertical-align: middle; }
+            .total-row { font-weight: 700; font-size: 1.2rem; }
+            .remove-btn { background-color: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; }
+            .place-order-btn { display: block; width: 100%; padding: 15px; border: none; border-radius: 5px; background-color: #28a745; color: white; font-size: 1.1rem; font-weight: bold; cursor: pointer; }
 
-        /* --- NEW CSS for Checkout Form --- */
-        .checkout-form .form-section {
-            margin-bottom: 1.5rem;
-            padding-bottom: 1.5rem;
-            border-bottom: 1px solid #e9ecef;
-        }
-        .checkout-form .form-section:last-of-type {
-            border-bottom: none;
-        }
-        .checkout-form h4 {
-            margin-top: 0;
-            margin-bottom: 1rem;
-            color: #495057;
-        }
-        .checkout-form label {
-            margin-left: 8px;
-            font-weight: 600;
-        }
-        .checkout-form .address-label {
-            display: block;
-            margin: 10px 0 5px 0;
-        }
-        .checkout-form textarea {
-            width: 100%;
-            padding: 10px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-            min-height: 60px;
-            box-sizing: border-box;
-            font-family: 'Poppins', sans-serif;
-        }
-        .checkout-form input[type="datetime-local"] {
-            margin-left: 10px;
-            padding: 5px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-        }
-    </style>
-</head>
-<body>
-    <div class="header"><h1>Your Order Summary</h1></div>
-    <main class="container">
-        {% if cart_items %}
-            <div class="cart-container">
-                <h2>Shopping Cart</h2>
-                <table>
-                    <thead>
-                        <tr><th>Item</th><th>Quantity</th><th style="text-align: right;">Total</th><th>Action</th></tr>
-                    </thead>
-                    <tbody>
-                        {% for item in cart_items %}
-                        <tr>
-                            <td>{{ item.name }}</td>
-                            <td>{{ item.quantity }}</td>
-                            <td style="text-align: right;">₹{{ "%.2f"|format(item.total) }}</td>
-                            <td><form action="{{ url_for('delete_from_cart', dish_id=item.id) }}" method="POST" style="margin: 0;"><button type="submit" class="remove-btn">Remove</button></form></td>
-                        </tr>
-                        {% endfor %}
-                        <tr class="total-row"><td colspan="2">Grand Total</td><td style="text-align: right;">₹{{ "%.2f"|format(grand_total) }}</td><td></td></tr>
-                    </tbody>
-                </table>
-            </div>
-            <div class="checkout-container">
-                <h2>Booking & Payment</h2>
-                <form class="checkout-form" action="{{ url_for('checkout') }}" method="POST">
-                    
-                    <div class="form-section">
-                        <h4>Delivery & Booking</h4>
-                        <label for="address" class="address-label"><strong>Delivery Address:</strong></label>
-                        <textarea id="address" name="address" placeholder="Enter your full address, including landmarks" required></textarea>
+            /* --- NEW CSS for Checkout Form --- */
+            .checkout-form .form-section {
+                margin-bottom: 1.5rem;
+                padding-bottom: 1.5rem;
+                border-bottom: 1px solid #e9ecef;
+            }
+            .checkout-form .form-section:last-of-type {
+                border-bottom: none;
+            }
+            .checkout-form h4 {
+                margin-top: 0;
+                margin-bottom: 1rem;
+                color: #495057;
+            }
+            .checkout-form label {
+                margin-left: 8px;
+                font-weight: 600;
+            }
+            .checkout-form .address-label {
+                display: block;
+                margin: 10px 0 5px 0;
+            }
+            .checkout-form textarea {
+                width: 100%;
+                padding: 10px;
+                border-radius: 5px;
+                border: 1px solid #ccc;
+                min-height: 60px;
+                box-sizing: border-box;
+                font-family: 'Poppins', sans-serif;
+            }
+            .checkout-form input[type="datetime-local"] {
+                margin-left: 10px;
+                padding: 5px;
+                border-radius: 5px;
+                border: 1px solid #ccc;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="header"><h1>Your Order Summary</h1></div>
+        <main class="container">
+            {% if cart_items %}
+                <div class="cart-container">
+                    <h2>Shopping Cart</h2>
+                    <table>
+                        <thead>
+                            <tr><th>Item</th><th>Quantity</th><th style="text-align: right;">Total</th><th>Action</th></tr>
+                        </thead>
+                        <tbody>
+                            {% for item in cart_items %}
+                            <tr>
+                                <td>{{ item.name }}</td>
+                                <td>{{ item.quantity }}</td>
+                                <td style="text-align: right;">₹{{ "%.2f"|format(item.total) }}</td>
+                                <td><form action="{{ url_for('delete_from_cart', dish_id=item.id) }}" method="POST" style="margin: 0;"><button type="submit" class="remove-btn">Remove</button></form></td>
+                            </tr>
+                            {% endfor %}
+                            <tr class="total-row"><td colspan="2">Grand Total</td><td style="text-align: right;">₹{{ "%.2f"|format(grand_total) }}</td><td></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="checkout-container">
+                    <h2>Booking & Payment</h2>
+                    <form class="checkout-form" action="{{ url_for('checkout') }}" method="POST">
                         
-                        <div style="margin-top: 1rem;">
-                            <input type="radio" id="book_now" name="booking_time" value="now" checked>
-                            <label for="book_now">Deliver ASAP</label><br>
-                            <input type="radio" id="book_later" name="booking_time" value="later" style="margin-top: 10px;">
-                            <label for="book_later">Schedule for a specific time:</label>
-                            <input type="datetime-local" name="scheduled_time">
+                        <div class="form-section">
+                            <h4>Delivery & Booking</h4>
+                            <label for="address" class="address-label"><strong>Delivery Address:</strong></label>
+                            <textarea id="address" name="address" placeholder="Enter your full address, including landmarks" required></textarea>
+                            
+                            <div style="margin-top: 1rem;">
+                                <input type="radio" id="book_now" name="booking_time" value="now" checked>
+                                <label for="book_now">Deliver ASAP</label><br>
+                                <input type="radio" id="book_later" name="booking_time" value="later" style="margin-top: 10px;">
+                                <label for="book_later">Schedule for a specific time:</label>
+                                <input type="datetime-local" name="scheduled_time">
+                            </div>
                         </div>
-                    </div>
-                    
-                    <div class="form-section">
-                        <h4>Payment Method</h4>
-                        <input type="radio" id="pay_cash" name="payment_method" value="Cash on Delivery" checked>
-                        <label for="pay_cash">Cash on Delivery</label><br>
-                        <input type="radio" id="pay_upi" name="payment_method" value="UPI" style="margin-top: 10px;">
-                        <label for="pay_upi">UPI (PhonePe/GPay)</label><br>
-                    </div>
-                    
-                    <button type="submit" class="place-order-btn">Place Order</button>
-                </form>
-            </div>
-        {% else %}
-            <div class="cart-container" style="text-align: center;">
-                <h2>Your cart is empty.</h2>
-                <a href="{{ url_for('vendors_list') }}" style="text-decoration: none; color: #ff6347; font-weight: 600;">Browse Restaurants</a>
-            </div>
-        {% endif %}
-    </main>
-</body>
-</html>
+                        
+                        <div class="form-section">
+                            <h4>Payment Method</h4>
+                            <input type="radio" id="pay_cash" name="payment_method" value="Cash on Delivery" checked>
+                            <label for="pay_cash">Cash on Delivery</label><br>
+                            <input type="radio" id="pay_upi" name="payment_method" value="UPI" style="margin-top: 10px;">
+                            <label for="pay_upi">UPI (PhonePe/GPay)</label><br>
+                        </div>
+                        
+                        <button type="submit" class="place-order-btn">Place Order</button>
+                    </form>
+                </div>
+            {% else %}
+                <div class="cart-container" style="text-align: center;">
+                    <h2>Your cart is empty.</h2>
+                    <a href="{{ url_for('vendors_list') }}" style="text-decoration: none; color: #ff6347; font-weight: 600;">Browse Restaurants</a>
+                </div>
+            {% endif %}
+        </main>
+    </body>
+    </html>

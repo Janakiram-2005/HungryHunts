@@ -2,29 +2,192 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard - HungryHuts</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Poppins', sans-serif; margin: 0; background-color: #f8f9fa; }
-        .sidebar { position: fixed; top: 0; left: 0; height: 100%; width: 250px; background-color: #343a40; color: white; }
-        .sidebar h2 a { color: white; text-decoration: none; display: block; text-align: center; padding: 20px 0; font-size: 1.5rem; }
+        
+        /* --- Desktop Sidebar --- */
+        .sidebar { 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            height: 100%; 
+            width: 250px; 
+            background-color: #343a40; 
+            color: white; 
+            transition: transform 0.3s ease; /* MODIFIED: For sliding */
+            z-index: 1000; /* ADDED: To be on top */
+        }
+        
+        .sidebar h2 a { 
+            color: white; 
+            text-decoration: none; 
+            display: block; 
+            text-align: center; 
+            padding: 20px 0; 
+            font-size: 1.5rem; 
+        }
+        
         .sidebar-nav { list-style-type: none; padding: 0; margin-top: 30px; }
-        .sidebar-nav li a { display: block; color: #adb5bd; text-decoration: none; padding: 15px 20px; transition: background-color 0.2s, color 0.2s; }
-        .sidebar-nav li a.active, .sidebar-nav li a:hover { background-color: #495057; color: white; }
-        .main-content { margin-left: 250px; padding: 2rem; }
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
-        .header h1 { margin: 0; }
+        
+        .sidebar-nav li a { 
+            display: block; 
+            color: #adb5bd; 
+            text-decoration: none; 
+            padding: 15px 20px; 
+            transition: background-color 0.2s, color 0.2s; 
+        }
+        
+        .sidebar-nav li a.active, .sidebar-nav li a:hover { 
+            background-color: #495057; 
+            color: white; 
+        }
+
+        /* ADDED: Close button for mobile sidebar */
+        .sidebar-close-btn {
+            display: none; /* Hidden on desktop */
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 2rem;
+            color: #adb5bd;
+            text-decoration: none;
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+        
+        /* --- Desktop Main Content --- */
+        .main-content { 
+            margin-left: 250px; 
+            padding: 2rem; 
+            transition: margin-left 0.3s ease;
+        }
+        
+        .header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-bottom: 2rem; 
+        }
+
+        /* ADDED: Hamburger button for mobile */
+        .mobile-nav-toggle {
+            display: none; /* Hidden on desktop */
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+            margin-right: 15px; /* Space from title */
+        }
+        .mobile-nav-toggle svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        /* ADDED: Wrapper for mobile header to keep button and title together */
+        .header-left {
+            display: flex;
+            align-items: center;
+        }
+        
+        .header h1 { margin: 0; font-size: 1.8rem; }
         .logout-btn { color: #dc3545; text-decoration: none; font-weight: 600; }
-        .content-card { background-color: white; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.07); padding: 2rem; }
-        table { width: 100%; border-collapse: collapse; margin-top: 1.5rem; }
-        th, td { text-align: left; padding: 12px; border-bottom: 1px solid #dee2e6; }
+        
+        .content-card { 
+            background-color: white; 
+            border-radius: 8px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.07); 
+            padding: 2rem; 
+        }
+        
+        .table-wrapper {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch; 
+        }
+
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin-top: 1.5rem; 
+        }
+        
+        th, td { 
+            text-align: left; 
+            padding: 12px; 
+            border-bottom: 1px solid #dee2e6; 
+            white-space: nowrap; 
+        }
+        
         th { background-color: #f8f9fa; }
         .actions a { color: #007bff; text-decoration: none; margin-right: 10px; }
+
+        /* ADDED: Overlay for when mobile menu is open */
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+        }
+
+        /* --- START: Mobile Responsive Styles --- */
+
+        @media (max-width: 768px) {
+            .sidebar {
+                /* Hide sidebar off-screen to the left */
+                transform: translateX(-100%); 
+            }
+
+            .sidebar-close-btn {
+                display: block; /* Show close button */
+            }
+
+            .main-content {
+                margin-left: 0; /* Full width content */
+                padding: 1rem;
+            }
+
+            .mobile-nav-toggle {
+                display: block; /* Show hamburger */
+            }
+
+            .header {
+                /* Re-adjust header for mobile */
+                flex-direction: row; 
+                align-items: center;
+                gap: 0;
+            }
+            .header h1 { font-size: 1.2rem; }
+
+            .content-card {
+                padding: 1rem;
+            }
+            
+            /* --- These styles apply when JS adds the 'sidebar-open' class --- */
+            
+            /* Show the sidebar */
+            body.sidebar-open .sidebar {
+                transform: translateX(0);
+            }
+
+            /* Show the overlay */
+            body.sidebar-open .overlay {
+                display: block;
+            }
+        }
+        /* --- END: Mobile Responsive Styles --- */
+
     </style>
 </head>
-<body>
-    <div class="sidebar">
-        <!-- TITLE IS NOW A LINK -->
+<body class=""> <div class="sidebar">
+        <button class="sidebar-close-btn">&times;</button>
+
         <h2><a href="{{ url_for('admin_dashboard') }}">HungryHuts Admin</a></h2>
         <ul class="sidebar-nav">
             <li><a href="{{ url_for('admin_dashboard') }}" class="active">Dashboard</a></li>
@@ -32,40 +195,74 @@
             <li><a href="{{ url_for('admin_settings') }}">Settings</a></li>
         </ul>
     </div>
+
+    <div class="overlay"></div>
+
     <div class="main-content">
         <div class="header">
-            <h1>Restaurant Management</h1>
+            <div class="header-left">
+                <button class="mobile-nav-toggle">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M4 6H20M4 12H20M4 18H20" stroke="#343a40" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+                <h1>Restaurant Management</h1>
+            </div>
             <a href="{{ url_for('logout') }}" class="logout-btn">Logout</a>
         </div>
+        
         <div class="content-card">
             <h2>All Registered Restaurants</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Restaurant Name</th>
-                        <th>Owner Email</th>
-                        <th>Commission Rate</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for vendor in vendors %}
-                    <tr>
-                        <td>{{ vendor.shop_name }}</td>
-                        <td>{{ vendor.owner_info[0].email if vendor.owner_info else 'N/A' }}</td>
-                        <td>{{ vendor.commission_rate or 'Not Set' }}%</td>
-                        <td>{{ 'Active' if vendor.is_active else 'Disabled' }}</td>
-                        <td class="actions">
-                            <!-- ACTION LINKS ARE NOW FUNCTIONAL -->
-                            <a href="{{ url_for('admin_edit_vendor', vendor_id=vendor._id) }}">Edit</a>
-                            <a href="{{ url_for('admin_vendor_details', vendor_id=vendor._id) }}">View Details</a>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+            
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Restaurant Name</th>
+                            <th>Owner Email</th>
+                            <th>Commission Rate</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for vendor in vendors %}
+                        <tr>
+                            <td>{{ vendor.shop_name }}</td>
+                            <td>{{ vendor.owner_info[0].email if vendor.owner_info else 'N/A' }}</td>
+                            <td>{{ vendor.commission_rate or 'Not Set' }}%</td>
+                            <td>{{ 'Active' if vendor.is_active else 'Disabled' }}</td>
+                            <td class="actions">
+                                <a href="{{ url_for('admin_edit_vendor', vendor_id=vendor._id) }}">Edit</a>
+                                <a href="{{ url_for('admin_vendor_details', vendor_id=vendor._id) }}">View Details</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div> 
+
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const navToggle = document.querySelector('.mobile-nav-toggle');
+            const closeBtn = document.querySelector('.sidebar-close-btn');
+            const overlay = document.querySelector('.overlay');
+
+            const openSidebar = () => {
+                document.body.classList.add('sidebar-open');
+            };
+
+            const closeSidebar = () => {
+                document.body.classList.remove('sidebar-open');
+            };
+
+            navToggle.addEventListener('click', openSidebar);
+            closeBtn.addEventListener('click', closeSidebar);
+            overlay.addEventListener('click', closeSidebar);
+        });
+    </script>
 </body>
 </html>

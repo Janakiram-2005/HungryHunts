@@ -2,16 +2,52 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Feedback</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Poppins', sans-serif; margin: 0; background-color: #f8f9fa; }
-        .sidebar { position: fixed; top: 0; left: 0; height: 100%; width: 250px; background-color: #343a40; color: white; overflow-y: auto; }
+        
+        .sidebar { 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            height: 100%; 
+            width: 250px; 
+            background-color: #343a40; 
+            color: white; 
+            overflow-y: auto; 
+            /* ADDED: For animation and stacking */
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+        
         .sidebar h2 a { color: white; text-decoration: none; display: block; text-align: center; padding: 20px 0; }
         .sidebar-nav { list-style-type: none; padding: 0; margin-top: 30px; }
         .sidebar-nav li a { display: block; color: #adb5bd; text-decoration: none; padding: 15px 20px; }
         .sidebar-nav li a.active, .sidebar-nav li a:hover { background-color: #495057; color: white; }
-        .main-content { margin-left: 250px; padding: 2rem; }
+
+        /* ADDED: Close button for mobile sidebar */
+        .sidebar-close-btn {
+            display: none; /* Hidden on desktop */
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 2rem;
+            color: #adb5bd;
+            text-decoration: none;
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+
+        .main-content { 
+            margin-left: 250px; 
+            padding: 2rem; 
+            /* ADDED: For animation */
+            transition: margin-left 0.3s ease;
+        }
+        
         .content-card { background-color: white; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.07); padding: 2rem; }
         
         /* New Styles for Conversation Threads */
@@ -28,10 +64,80 @@
         textarea { width: 100%; min-height: 80px; padding: 8px; border: 1px solid #ccc; border-radius: 3px; box-sizing: border-box; resize: vertical; margin-bottom: 10px; }
         .reply-btn { border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; background-color: #28a745; color: white; }
         .delete-btn { border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; background-color: #dc3545; color: white; }
+
+        /* ADDED: Hamburger button for mobile */
+        .mobile-nav-toggle {
+            display: none; /* Hidden on desktop */
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+            margin-bottom: 1rem; /* Space below button */
+        }
+        .mobile-nav-toggle svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        /* ADDED: Overlay for when mobile menu is open */
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+        }
+
+        /* --- START: Mobile Responsive Styles --- */
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%); /* Hide sidebar off-screen */
+            }
+
+            .sidebar-close-btn {
+                display: block; /* Show close button */
+            }
+
+            .main-content {
+                margin-left: 0; /* Full width content */
+                padding: 1rem;   /* Reduce padding */
+            }
+
+            .mobile-nav-toggle {
+                display: block; /* Show hamburger */
+            }
+
+            .content-card {
+                padding: 1rem;
+            }
+
+            .thread-header {
+                flex-direction: column; /* Stack header items */
+                align-items: flex-start;
+                gap: 10px; /* Add space between user info and button */
+            }
+            
+            /* --- Styles for when sidebar is open --- */
+            
+            body.sidebar-open .sidebar {
+                transform: translateX(0); /* Slide sidebar in */
+            }
+
+            body.sidebar-open .overlay {
+                display: block; /* Show overlay */
+            }
+        }
+        /* --- END: Mobile Responsive Styles --- */
+
     </style>
 </head>
-<body>
-    <div class="sidebar">
+<body class=""> <div class="sidebar">
+        <button class="sidebar-close-btn">&times;</button>
+
         <h2><a href="{{ url_for('admin_dashboard') }}">HungryHuts Admin</a></h2>
         <ul class="sidebar-nav">
             <li><a href="{{ url_for('admin_dashboard') }}">Dashboard</a></li>
@@ -40,7 +146,15 @@
         </ul>
     </div>
 
+    <div class="overlay"></div>
+
     <div class="main-content">
+        <button class="mobile-nav-toggle">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M4 6H20M4 12H20M4 18H20" stroke="#343a40" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </button>
+
         <div class="content-card">
             <h1>User Feedback & Suggestions</h1>
 
@@ -79,5 +193,25 @@
             {% endfor %}
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const navToggle = document.querySelector('.mobile-nav-toggle');
+            const closeBtn = document.querySelector('.sidebar-close-btn');
+            const overlay = document.querySelector('.overlay');
+
+            const openSidebar = () => {
+                document.body.classList.add('sidebar-open');
+            };
+
+            const closeSidebar = () => {
+                document.body.classList.remove('sidebar-open');
+            };
+
+            navToggle.addEventListener('click', openSidebar);
+            closeBtn.addEventListener('click', closeSidebar);
+            overlay.addEventListener('click', closeSidebar);
+        });
+    </script>
 </body>
 </html>

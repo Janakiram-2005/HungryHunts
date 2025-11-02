@@ -2,25 +2,152 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vendor Details - {{ vendor.shop_name }}</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Poppins', sans-serif; margin: 0; background-color: #f8f9fa; }
-        .sidebar { position: fixed; top: 0; left: 0; height: 100%; width: 250px; background-color: #343a40; color: white; }
+        
+        .sidebar { 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            height: 100%; 
+            width: 250px; 
+            background-color: #343a40; 
+            color: white; 
+            /* ADDED: For animation and stacking */
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+        
         .sidebar h2 a { color: white; text-decoration: none; display: block; text-align: center; padding: 20px 0; font-size: 1.5rem; }
         .sidebar-nav { list-style-type: none; padding: 0; margin-top: 30px; }
         .sidebar-nav li a { display: block; color: #adb5bd; text-decoration: none; padding: 15px 20px; }
         .sidebar-nav li a:hover { background-color: #495057; color: white; }
-        .main-content { margin-left: 250px; padding: 2rem; }
-        .detail-card { background-color: white; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.07); padding: 2rem; max-width: 800px; margin: auto; }
+
+        /* ADDED: Close button for mobile sidebar */
+        .sidebar-close-btn {
+            display: none; /* Hidden on desktop */
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 2rem;
+            color: #adb5bd;
+            text-decoration: none;
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .main-content { 
+            margin-left: 250px; 
+            padding: 2rem; 
+            /* ADDED: For animation */
+            transition: margin-left 0.3s ease;
+        }
+        
+        .detail-card { 
+            background-color: white; 
+            border-radius: 8px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.07); 
+            padding: 2rem; 
+            max-width: 800px; 
+            margin: auto; 
+        }
+        
         h1 { margin-top: 0; }
-        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 1.5rem; }
-        .info-item strong { display: block; color: #6c757d; font-size: 0.9rem; margin-bottom: 5px; }
+        .info-grid { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; /* 2 columns on desktop */
+            gap: 1.5rem; 
+            margin-top: 1.5rem; 
+        }
+        
+        .info-item strong { 
+            display: block; 
+            color: #6c757d; 
+            font-size: 0.9rem; 
+            margin-bottom: 5px; 
+        }
+        
         .info-item span { font-size: 1.1rem; }
+
+        /* ADDED: Hamburger button for mobile */
+        .mobile-nav-toggle {
+            display: none; /* Hidden on desktop */
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+            margin-bottom: 1rem; /* Space below button */
+        }
+        .mobile-nav-toggle svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        /* ADDED: Overlay for when mobile menu is open */
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+        }
+
+        /* --- START: Mobile Responsive Styles --- */
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%); /* Hide sidebar off-screen */
+            }
+
+            .sidebar-close-btn {
+                display: block; /* Show close button */
+            }
+
+            .main-content {
+                margin-left: 0; /* Full width content */
+                padding: 1rem;   /* Reduce padding */
+            }
+
+            .mobile-nav-toggle {
+                display: block; /* Show hamburger */
+            }
+
+            .detail-card {
+                /* Make card full width, no shadow */
+                padding: 1rem;
+                box-shadow: none;
+                border-radius: 0;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr; /* Stack items into 1 column */
+                gap: 1.2rem; /* Adjust gap for vertical stacking */
+            }
+            
+            /* --- Styles for when sidebar is open --- */
+            
+            body.sidebar-open .sidebar {
+                transform: translateX(0); /* Slide sidebar in */
+            }
+
+            body.sidebar-open .overlay {
+                display: block; /* Show overlay */
+            }
+        }
+        /* --- END: Mobile Responsive Styles --- */
+
     </style>
 </head>
-<body>
-    <div class="sidebar">
+<body class=""> <div class="sidebar">
+        <button class="sidebar-close-btn">&times;</button>
+
         <h2><a href="{{ url_for('admin_dashboard') }}">HungryHuts Admin</a></h2>
         <ul class="sidebar-nav">
             <li><a href="{{ url_for('admin_dashboard') }}">Dashboard</a></li>
@@ -28,7 +155,16 @@
             <li><a href="{{ url_for('admin_settings') }}">Settings</a></li>
         </ul>
     </div>
+
+    <div class="overlay"></div>
+
     <div class="main-content">
+        <button class="mobile-nav-toggle">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M4 6H20M4 12H20M4 18H20" stroke="#343a40" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </button>
+
         <div class="detail-card">
             <h1>{{ vendor.shop_name }}</h1>
             <div class="info-grid">
@@ -41,5 +177,25 @@
             </div>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const navToggle = document.querySelector('.mobile-nav-toggle');
+            const closeBtn = document.querySelector('.sidebar-close-btn');
+            const overlay = document.querySelector('.overlay');
+
+            const openSidebar = () => {
+                document.body.classList.add('sidebar-open');
+            };
+
+            const closeSidebar = () => {
+                document.body.classList.remove('sidebar-open');
+            };
+
+            navToggle.addEventListener('click', openSidebar);
+            closeBtn.addEventListener('click', closeSidebar);
+            overlay.addEventListener('click', closeSidebar);
+        });
+    </script>
 </body>
 </html>

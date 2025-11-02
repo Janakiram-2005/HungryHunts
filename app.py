@@ -546,7 +546,19 @@ def admin_settings():
     return render_template('admin_settings.html')
 
 
+# ADD THIS CODE TO YOUR APP.PY
 
+@app.after_request
+def set_response_headers(response):
+    """
+    Set headers to prevent browser caching for all responses.
+    This solves the issue of users seeing protected pages after logging out
+    by clicking the browser's back button.
+    """
+    response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '0'
+    return response
 
 # --- RUN THE APP ---
 if __name__ == '__main__':

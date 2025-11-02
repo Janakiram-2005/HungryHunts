@@ -2,22 +2,98 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Login - HungryHuts</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background-color: #f8f9fa; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .login-container { background: white; padding: 40px; border-radius: 10px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 400px; text-align: center; border-top: 5px solid #343a40; }
+        body { 
+            font-family: 'Segoe UI', sans-serif; 
+            background-color: #f8f9fa; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            margin: 0; 
+        }
+        
+        .login-container { 
+            background: white; 
+            padding: 40px; 
+            border-radius: 10px; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1); 
+            width: 100%; 
+            max-width: 400px; 
+            text-align: center; 
+            border-top: 5px solid #343a40; 
+            /* ADDED: Makes padding calculation more stable */
+            box-sizing: border-box; 
+        }
+        
         h2 { color: #343a40; }
         p { color: #777; margin-bottom: 30px; }
-        .form-group { margin-bottom: 20px; text-align: left; }
-        label { display: block; margin-bottom: 5px; color: #555; font-weight: 600; }
-        input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
-        button { width: 100%; padding: 15px; border: none; border-radius: 5px; background-color: #343a40; color: white; font-size: 16px; font-weight: bold; cursor: pointer; }
-        .alert-error { padding: 15px; margin-bottom: 20px; border-radius: 5px; color: white; background-color: #dc3545; }
+        
+        .form-group { 
+            margin-bottom: 20px; 
+            text-align: left; 
+        }
+        
+        label { 
+            display: block; 
+            margin-bottom: 5px; 
+            color: #555; 
+            font-weight: 600; 
+        }
+        
+        input { 
+            width: 100%; 
+            padding: 12px; 
+            border: 1px solid #ddd; 
+            border-radius: 5px; 
+            box-sizing: border-box; 
+        }
+        
+        button { 
+            width: 100%; 
+            padding: 15px; 
+            border: none; 
+            border-radius: 5px; 
+            background-color: #343a40; 
+            color: white; 
+            font-size: 16px; 
+            font-weight: bold; 
+            cursor: pointer; 
+        }
+        
+        .alert-error { 
+            padding: 15px; 
+            margin-bottom: 20px; 
+            border-radius: 5px; 
+            color: white; 
+            background-color: #dc3545; 
+        }
+
+        /* --- START: Mobile Responsive Styles --- */
+        
+        @media (max-width: 480px) {
+            .login-container {
+                /* On small screens, reduce the side padding */
+                padding: 30px 25px;
+                /* Remove box-shadow to look cleaner on small screens */
+                box-shadow: none; 
+                border-top: none;
+                height: 100vh; /* Make it fill the screen */
+                border-radius: 0;
+                display: flex;
+                flex-direction: column;
+                justify-content: center; /* Center the form vertically */
+            }
+        }
+
+        /* --- END: Mobile Responsive Styles --- */
+
     </style>
 </head>
 <body>
     <div class="login-container">
-        <!-- Block to display error messages -->
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}
@@ -30,7 +106,6 @@
 
         <h2>Admin Portal Login</h2>
         <p>Platform Management</p>
-        <!-- Form action is now corrected -->
         <form action="{{ url_for('admin_login_page') }}" method="POST">
             <div class="form-group">
                 <label for="username">Username</label>
